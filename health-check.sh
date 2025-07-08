@@ -2,7 +2,7 @@
 
 commit=true
 origin=$(git remote get-url origin)
-if [[ $origin == *Zaid-maker/status-page* ]]
+if [[ $origin == *zaidhafeezvu/status-page* ]]
 then
   commit=true
 fi
@@ -68,8 +68,8 @@ done
 if [[ $commit == true ]]
 then
   # Git configuration for automated commits
-  git config --global user.name 'Zaid-maker'
-  git config --global user.email 'pzhafeez@gmail.com'
+  git config --global user.name 'zaidhafeezvu'
+  git config --global user.email '219703339+zaidhafeezvu@users.noreply.github.com'
   git add -A --force logs/
   git commit -am '[Automated] Update Health Check Logs'
   git push
