@@ -14,10 +14,23 @@ urlsConfig="./urls.cfg"
 echo "Reading $urlsConfig"
 while read -r line
 do
+  # Skip empty lines and lines that don't contain '='
+  if [[ -z "$line" || "$line" != *"="* ]]; then
+    continue
+  fi
   echo "  $line"
   IFS='=' read -ra TOKENS <<< "$line"
-  KEYSARRAY+=(${TOKENS[0]})
-  URLSARRAY+=(${TOKENS[1]})
+  # Ensure we have both key and URL
+  if [[ -n "${TOKENS[0]}" && -n "${TOKENS[1]}" ]]; then
+    key="${TOKENS[0]}"
+    # Join remaining parts in case URL contains '='
+    url="${TOKENS[1]}"
+    for ((i=2; i<${#TOKENS[@]}; i++)); do
+      url="${url}=${TOKENS[i]}"
+    done
+    KEYSARRAY+=("$key")
+    URLSARRAY+=("$url")
+  fi
 done < "$urlsConfig"
 
 echo "********************"

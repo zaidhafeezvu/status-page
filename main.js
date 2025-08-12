@@ -441,8 +441,12 @@ async function genAllReports() {
   const configText = await response.text();
   const configLines = configText.split("\n");
   for (let ii = 0; ii < configLines.length; ii++) {
-    const configLine = configLines[ii];
-    const [key, url] = configLine.split("=");
+    const configLine = configLines[ii].trim();
+    if (!configLine || !configLine.includes('=')) {
+      continue;
+    }
+    const [key, ...urlParts] = configLine.split("=");
+    const url = urlParts.join("="); // Handle URLs that might contain '='
     if (!key || !url) {
       continue;
     }
