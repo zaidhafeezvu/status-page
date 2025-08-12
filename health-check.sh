@@ -40,7 +40,7 @@ do
     response=$(curl --write-out '%{http_code}' --silent --output /dev/null \
                     --max-time 10 --retry 2 --retry-delay 5 "$url")
     
-    if [[ "$response" -eq 200 ]] || [[ "$response" -eq 202 ]] || [[ "$response" -eq 301 ]] || [[ "$response" -eq 307 ]]; then
+    if [[ "$response" -eq 200 ]] || [[ "$response" -eq 201 ]] || [[ "$response" -eq 202 ]] || [[ "$response" -eq 301 ]] || [[ "$response" -eq 302 ]] || [[ "$response" -eq 307 ]] || [[ "$response" -eq 308 ]]; then
       result="success"
     else
       result="failed"

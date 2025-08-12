@@ -237,17 +237,16 @@ function getStatusDescriptiveText(color) {
 }
 
 /**
- * It takes a key, a date, a quartile, and a color, and returns a string that looks like this: "key |
- * date : quartile : statusText"
+ * It takes a key, a date, and a color, and returns a string that looks like this: "key |
+ * date : statusText"
  * @param key - The key of the data point.
  * @param date - The date of the data point
- * @param quartile - The quartile value of the data point.
  * @param color - the color of the bar
  * @returns A string.
  */
-function getTooltip(key, date, quartile, color) {
+function getTooltip(key, date, color) {
   let statusText = getStatusText(color);
-  return `${key} | ${date.toDateString()} : ${quartile} : ${statusText}`;
+  return `${key} | ${date.toDateString()} : ${statusText}`;
 }
 
 /**
@@ -348,7 +347,7 @@ function splitRowsByDate(rows) {
     if (!resultArray) {
       resultArray = [];
       dateValues[dateStr] = resultArray;
-      if (dateValues.length > maxDays) {
+      if (Object.keys(dateValues).length > maxDays) {
         break;
       }
     }
@@ -457,21 +456,41 @@ async function genAllReports() {
  * and then inserts it into the HTML
  */
 async function genIncidentReport() {
-  const response = await fetch(
-    "https://incidents.statsig.workers.dev/contents"
-  );
-  if (response.ok) {
-    const json = await response.json();
-    try {
-      const activeDom = DOMPurify.sanitize(
-        marked.parse(json.active ? json.active : "No active Incidents")
-      );
-      const inactiveDom = DOMPurify.sanitize(marked.parse(json.inactive));
+  // Check if required libraries are loaded
+  if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+    console.warn('Required libraries (marked or DOMPurify) not loaded. Skipping incident reports.');
+    document.getElementById("activeIncidentReports").innerHTML = "Required libraries not loaded";
+    document.getElementById("pastIncidentReports").innerHTML = "Required libraries not loaded";
+    return;
+  }
 
-      document.getElementById("activeIncidentReports").innerHTML = activeDom;
-      document.getElementById("pastIncidentReports").innerHTML = inactiveDom;
-    } catch (e) {
-      console.log(e.message);
+  try {
+    const response = await fetch(
+      "https://incidents.statsig.workers.dev/contents"
+    );
+    if (response.ok) {
+      const json = await response.json();
+      try {
+        const activeDom = DOMPurify.sanitize(
+          marked.parse(json.active ? json.active : "No active Incidents")
+        );
+        const inactiveDom = DOMPurify.sanitize(marked.parse(json.inactive));
+
+        document.getElementById("activeIncidentReports").innerHTML = activeDom;
+        document.getElementById("pastIncidentReports").innerHTML = inactiveDom;
+      } catch (e) {
+        console.error("Error parsing incident reports:", e.message);
+        document.getElementById("activeIncidentReports").innerHTML = "Error loading incident reports";
+        document.getElementById("pastIncidentReports").innerHTML = "Error loading incident reports";
+      }
+    } else {
+      console.warn("Failed to fetch incident reports:", response.status);
+      document.getElementById("activeIncidentReports").innerHTML = "No incident reports available";
+      document.getElementById("pastIncidentReports").innerHTML = "No incident reports available";
     }
+  } catch (error) {
+    console.error("Network error fetching incident reports:", error.message);
+    document.getElementById("activeIncidentReports").innerHTML = "Unable to connect to incident report service";
+    document.getElementById("pastIncidentReports").innerHTML = "Unable to connect to incident report service";
   }
 }
