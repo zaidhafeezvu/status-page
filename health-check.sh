@@ -14,10 +14,23 @@ urlsConfig="./urls.cfg"
 echo "Reading $urlsConfig"
 while read -r line
 do
+  # Skip empty lines and lines that don't contain '='
+  if [[ -z "$line" || "$line" != *"="* ]]; then
+    continue
+  fi
   echo "  $line"
   IFS='=' read -ra TOKENS <<< "$line"
-  KEYSARRAY+=(${TOKENS[0]})
-  URLSARRAY+=(${TOKENS[1]})
+  # Ensure we have both key and URL
+  if [[ -n "${TOKENS[0]}" && -n "${TOKENS[1]}" ]]; then
+    key="${TOKENS[0]}"
+    # Join remaining parts in case URL contains '='
+    url="${TOKENS[1]}"
+    for ((i=2; i<${#TOKENS[@]}; i++)); do
+      url="${url}=${TOKENS[i]}"
+    done
+    KEYSARRAY+=("$key")
+    URLSARRAY+=("$url")
+  fi
 done < "$urlsConfig"
 
 echo "********************"
@@ -40,7 +53,7 @@ do
     response=$(curl --write-out '%{http_code}' --silent --output /dev/null \
                     --max-time 10 --retry 2 --retry-delay 5 "$url")
     
-    if [[ "$response" -eq 200 ]] || [[ "$response" -eq 202 ]] || [[ "$response" -eq 301 ]] || [[ "$response" -eq 307 ]]; then
+    if [[ "$response" -eq 200 ]] || [[ "$response" -eq 201 ]] || [[ "$response" -eq 202 ]] || [[ "$response" -eq 301 ]] || [[ "$response" -eq 302 ]] || [[ "$response" -eq 307 ]] || [[ "$response" -eq 308 ]]; then
       result="success"
     else
       result="failed"
