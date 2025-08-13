@@ -46,9 +46,6 @@ function constructStatusStream(key, url, uptimeData) {
     upTime: uptimeData.upTime,
   });
 
-  // Add status class to container for styling
-  container.classList.add(color);
-
   container.appendChild(streamContainer);
   return container;
 }
@@ -466,12 +463,8 @@ async function genIncidentReport() {
   // Check if required libraries are loaded
   if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
     console.warn('Required libraries (marked or DOMPurify) not loaded. Skipping incident reports.');
-    const activeReports = document.getElementById("activeIncidentReports");
-    const pastReports = document.getElementById("pastIncidentReports");
-    activeReports.classList.remove("loading");
-    pastReports.classList.remove("loading");
-    activeReports.innerHTML = "Required libraries not loaded";
-    pastReports.innerHTML = "Required libraries not loaded";
+    document.getElementById("activeIncidentReports").innerHTML = "Required libraries not loaded";
+    document.getElementById("pastIncidentReports").innerHTML = "Required libraries not loaded";
     return;
   }
 
@@ -487,37 +480,21 @@ async function genIncidentReport() {
         );
         const inactiveDom = DOMPurify.sanitize(marked.parse(json.inactive));
 
-        const activeReports = document.getElementById("activeIncidentReports");
-        const pastReports = document.getElementById("pastIncidentReports");
-        activeReports.classList.remove("loading");
-        pastReports.classList.remove("loading");
-        activeReports.innerHTML = activeDom;
-        pastReports.innerHTML = inactiveDom;
+        document.getElementById("activeIncidentReports").innerHTML = activeDom;
+        document.getElementById("pastIncidentReports").innerHTML = inactiveDom;
       } catch (e) {
         console.error("Error parsing incident reports:", e.message);
-        const activeReports = document.getElementById("activeIncidentReports");
-        const pastReports = document.getElementById("pastIncidentReports");
-        activeReports.classList.remove("loading");
-        pastReports.classList.remove("loading");
-        activeReports.innerHTML = "Error loading incident reports";
-        pastReports.innerHTML = "Error loading incident reports";
+        document.getElementById("activeIncidentReports").innerHTML = "Error loading incident reports";
+        document.getElementById("pastIncidentReports").innerHTML = "Error loading incident reports";
       }
     } else {
       console.warn("Failed to fetch incident reports:", response.status);
-      const activeReports = document.getElementById("activeIncidentReports");
-      const pastReports = document.getElementById("pastIncidentReports");
-      activeReports.classList.remove("loading");
-      pastReports.classList.remove("loading");
-      activeReports.innerHTML = "No incident reports available";
-      pastReports.innerHTML = "No incident reports available";
+      document.getElementById("activeIncidentReports").innerHTML = "No incident reports available";
+      document.getElementById("pastIncidentReports").innerHTML = "No incident reports available";
     }
   } catch (error) {
     console.error("Network error fetching incident reports:", error.message);
-    const activeReports = document.getElementById("activeIncidentReports");
-    const pastReports = document.getElementById("pastIncidentReports");
-    activeReports.classList.remove("loading");
-    pastReports.classList.remove("loading");
-    activeReports.innerHTML = "Unable to connect to incident report service";
-    pastReports.innerHTML = "Unable to connect to incident report service";
+    document.getElementById("activeIncidentReports").innerHTML = "Unable to connect to incident report service";
+    document.getElementById("pastIncidentReports").innerHTML = "Unable to connect to incident report service";
   }
 }
